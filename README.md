@@ -7,7 +7,7 @@ SUSAN is a sub-tomogram averaging workflow for CryoET based on sub-stacks of ima
 - `cmake-3.22.x` (https://cmake.org/download/)
 - `Eigen` library (https://gitlab.com/libeigen/eigen.git)
 
-## Steps to setup SUSAN
+## Setup & Build
 1. Install listed above dependencies.
 2. Clone `SUSAN` from this repository locally
 ```bash
@@ -30,5 +30,7 @@ cmake ..
 make -j
 ```
 5. Enjoy!
+
+## Usage
 
 `SUSAN` description, usage documentation & other useful information you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
