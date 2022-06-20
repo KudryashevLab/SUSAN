@@ -3,7 +3,7 @@
 
 ## About this repository
 
-This is a fork of the `SUSAN` [original repository](https://github.com/rkms86/SUSAN) which was developed by Ricardo Miguel Sanchez Loyaza in the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology at [MPIBP (Max Planck Institute of Biophysics)](https://www.biophys.mpg.de/en) in Frankfurt (Hesse), Germany.
+This is a fork of the [`SUSAN` original repository](https://github.com/rkms86/SUSAN) which was developed by Ricardo Miguel Sanchez Loyaza in the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology at [MPIBP (Max Planck Institute of Biophysics)](https://www.biophys.mpg.de/en) in Frankfurt (Hesse), Germany.
 
 This fork repository was created for `SUSAN` usage support by members of established in August 2021
 [In situ Structural Biology Group of Dr. Misha Kudryashev](https://www.mdc-berlin.de/kudryashev) at the [MDCMM (Max Delbrück Center of Molecular Medicine)](https://www.mdc-berlin.de/) in Berlin, Germany.
@@ -85,17 +85,24 @@ cp -R LOCAL_REPOSITORY_PATH/SUSAN/+SUSAN/tutorial_01 TUTORIAL_PATH
 where `TUTORIAL_PATH` is a full path to the folder where to store the content of the `tutorial_01` folder.
 2. Prepare a tutorial raw data.
 Go to `TUTORIAL_PATH/data` and perform the following steps
-  1. Download the tutorial data (`wget` should be installed!) by running
+  1. Download the tutorial data (`wget` should be installed) by running
   ```bash
   ./download_data.sh
   ```
-  2. Produce aligned unbinned & binned stacks ([`IMOD`](https://bio3d.colorado.edu/imod/) should be installed!) by running  
+  2. Produce aligned unbinned & binned stacks (you need to [install `IMOD`](https://bio3d.colorado.edu/imod/) for that) by running  
   ```bash
   ./create_binned_aligned_stacks.sh
   ```
-  3. Unpack .gz reference file (`gunzip` should be installed!) by running
+  3. Unpack .gz reference file and corresponding mask (`gunzip` should be installed) by running
   ```bash
   gzip -d emd_3420_b4.mrc.gz
+  gzip -d mask_sph_b4.mrc.gz
   ```
-3. Setup `SUSAN` path and start a tutorial.
-Perform step No.3 from the above section `MATLAB package setup & compilation`. Further tutorial instructions and their description you may find in the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
+3. Open `MATLAB` and setup `SUSAN` path.
+Perform step No.3 from the above section `MATLAB package setup & compilation`.
+4. Enjoy the tutorial!
+In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to folder `TUTORIAL_PATH/susan_projects`, open `MATALB` script `workflow_documented.m` here and follow the tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
+
+In the `susan_projects` folder you may find another `MATLAB` script `workflow.m` - that is a more extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
+
+To visualize results and generate another reference you may need to [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
