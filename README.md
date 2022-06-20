@@ -105,4 +105,4 @@ In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to fo
 
 In the `susan_projects` folder you may find another `MATLAB` script `workflow.m` - that is a more extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
 
-To visualize results and generate another reference you may need to [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
+To visualize results and generate another reference or mask you may [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
