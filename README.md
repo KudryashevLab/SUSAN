@@ -97,12 +97,15 @@ Go to `TUTORIAL_PATH/data` and perform the following steps
   ```bash
   gzip -d emd_3420_b4.mrc.gz
   gzip -d mask_sph_b4.mrc.gz
+  gzip -d gb_b4.mrc.gz
   ```
 3. Open `MATLAB` and setup `SUSAN` path.
 Perform step No.3 from the above section `MATLAB package setup & compilation`.
 4. Enjoy the tutorial!
-In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to folder `TUTORIAL_PATH/susan_projects`, open `MATALB` script `workflow_documented.m` here and follow the tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
+In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to folder `TUTORIAL_PATH/susan_projects`, where you may find two scripts:
+- `workflow_basic.m` - this is a script for the `Tomograms Info and CTF estimation` and `Basic subtomogram averaging on binned data` sections of the tutorial from `SUSAN` documentation;
+- `workflow.m` - that is a more recent, refined and extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
 
-In the `susan_projects` folder you may find another `MATLAB` script `workflow.m` - that is a more extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
+Thus, we suggest you to start with `workflow_basic.m` to follow tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
 
 To visualize results and generate another reference or mask you may [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
