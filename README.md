@@ -3,13 +3,16 @@
 
 ## About this repository
 
-This is a fork of the original `SUSAN` repository (https://github.com/rkms86/SUSAN) which was developed by Ricardo Miguel Sanchez Loyaza in the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the [MPIBP (Max Planck Institute of Biophysics)](https://www.biophys.mpg.de/en) in Frankfurt, Hesse.
+This is a fork of the `SUSAN` [original repository](https://github.com/rkms86/SUSAN) which was developed by Ricardo Miguel Sanchez Loyaza in the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology at [MPIBP (Max Planck Institute of Biophysics)](https://www.biophys.mpg.de/en) in Frankfurt (Hesse), Germany.
+
+This fork repository was created for `SUSAN` usage support by members of established in August 2021
+[In situ Structural Biology Group of Dr. Misha Kudryashev](https://www.mdc-berlin.de/kudryashev) at the [MDCMM (Max Delbrück Center of Molecular Medicine)](https://www.mdc-berlin.de/) in Berlin, Germany.
 
 ## Documentation
 
 `SUSAN` description, documentation on usage & other useful information you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
 
-`SUSAN` is an Open Source project (GPLv3.0).
+`SUSAN` is an Open Source project (AGPLv3.0).
 
 ## Build instructions
 
@@ -70,8 +73,29 @@ current `MATLAB` instance, check if the documentation can be accessed:
 >> help SUSAN
 ```
 
-## Tutorial
+## Setup of MATLAB-based tutorial
 
-Here we provide up-to-date tutorial instructions to teach you how to use `SUSAN`.
+Here we provide up-to-date instructions on how to prepare the data to be able to run the tutorial.
 
-This section will be updated soon...
+1. Prepare a tutorial folder.
+Copy a folder `LOCAL_REPOSITORY_PATH/SUSAN/+SUSAN/tutorial_01` somewhere to store & process tutorial dataset by
+```bash
+cp -R LOCAL_REPOSITORY_PATH/SUSAN/+SUSAN/tutorial_01 TUTORIAL_PATH
+```
+where `TUTORIAL_PATH` is a full path to the folder where to store the content of the `tutorial_01` folder.
+2. Prepare a tutorial raw data.
+Go to `TUTORIAL_PATH/data` and perform the following steps
+  1. Download the tutorial data (`wget` should be installed!) by running
+  ```bash
+  ./download_data.sh
+  ```
+  2. Produce aligned unbinned & binned stacks ([`IMOD`](https://bio3d.colorado.edu/imod/) should be installed!) by running  
+  ```bash
+  ./create_binned_aligned_stacks.sh
+  ```
+  3. Unpack .gz reference file (`gunzip` should be installed!) by running
+  ```bash
+  gzip -d emd_3420_b4.mrc.gz
+  ```
+3. Setup `SUSAN` path and start a tutorial.
+Perform step No.3 from the above section `MATLAB package setup & compilation`. Further tutorial instructions and their description you may find in the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
