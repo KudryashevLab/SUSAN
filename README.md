@@ -97,7 +97,6 @@ Go to `TUTORIAL_PATH/data` and perform the following steps
   ```bash
   gzip -d emd_3420_b4.mrc.gz
   gzip -d mask_sph_b4.mrc.gz
-  gzip -d gb_b4.mrc.gz
   ```
 3. Open `MATLAB` and setup `SUSAN` path.
 Perform step No.3 from the above section `MATLAB package setup & compilation`.
