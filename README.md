@@ -93,18 +93,38 @@ Go to `TUTORIAL_PATH/data` and perform the following steps
   ```bash
   ./create_binned_aligned_stacks.sh
   ```
-  3. Unpack .gz reference file and corresponding mask (`gunzip` should be installed) by running
+  3. Unpack .gz reference file and masks (`gunzip` should be installed) by running
   ```bash
-  gzip -d emd_3420_b4.mrc.gz
-  gzip -d mask_sph_b4.mrc.gz
+  gzip -d template_bin2.mrc.gz
+  gzip -d mask_sph_bin1.mrc.gz
+  gzip -d mask_sph_bin2.mrc.gz
   ```
 3. Open `MATLAB` and setup `SUSAN` path.
 Perform step No.3 from the above section `MATLAB package setup & compilation`.
 4. Enjoy the tutorial!
-In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to folder `TUTORIAL_PATH/susan_projects`, where you may find two scripts:
-- `workflow_basic.m` - this is a script for the `Tomograms Info and CTF estimation` and `Basic subtomogram averaging on binned data` sections of the tutorial from `SUSAN` documentation;
-- `workflow.m` - that is a more recent, refined and extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
+In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to folder `TUTORIAL_PATH/susan_projects`, where you may find three scripts:
+- `workflow_basicStA.m` - this is a script for the `Tomograms Info and CTF estimation` and `Basic subtomogram averaging on binned data` sections of the tutorial from `SUSAN` documentation;
+- `workflow_midStA.m` - this is a script for the `Mid-complexity subtomogram averaging on unbinned data` section of the tutorial from `SUSAN` documentation;
+- `workflow.m` - that is a more recent and extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
 
-Thus, we suggest you to start with `workflow_basic.m` to follow tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
+Thus, we suggest you to start with `workflow_basicStA.m` followed by `workflow_midStA.m` to perform tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
 
-To visualize results and generate another reference or mask you may [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
+To visualize results, and generate another reference or mask you may need to [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
+
+## Examples of tutorial results:
+
+Following the scripted tutorials and using the provided data, after the last iteration performed you should get the following 'FSC' curve and the corresponding average structure from 3605 particles (which is the best 90% of initial dataset of 4005 particles):
+
+1. After tutorial scripted in `workflow_basicStA.m`:
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/fsc_bin2_ite10.png" alt="Ribosome FSC after basic StA workflow"/ width="60%">
+<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/ave_bin2_ite10.png" alt="Ribosome map after basic StA workflow"/ width="39%">
+</p>
+
+2. After tutorial scripted in `workflow_midStA.m`:
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/fsc_bin1_ite10.png" alt="Ribosome FSC after mid-complexity StA workflow"/ width="60%">
+<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/ave_bin1_ite10.png" alt="Ribosome map after mid-complexity StA workflow"/ width="39%">
+</p>
