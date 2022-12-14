@@ -32,10 +32,10 @@ class Particles:
     
     def __init__(self,filename=None,n_ptcl=0,n_proj=0,n_refs=0):
         if isinstance(filename, str):
-            self.load(filename) 
+            self._load(filename) 
         else:
             if n_ptcl > 0 and n_proj > 0 and n_refs>0:
-                self.alloc(n_ptcl,n_proj,n_refs)
+                self._alloc(n_ptcl,n_proj,n_refs)
             else:
                 raise NameError('Invalid input')
 
@@ -52,7 +52,7 @@ class Particles:
         if not _is_ext(filename,'ptclsraw'):
             raise ValueError( 'Wrong file extension, do you mean ' + _force_ext(filename,'ptclsraw') + '?')
     
-    def alloc(self,n_ptcl,n_proj,n_refs):
+    def _alloc(self,n_ptcl,n_proj,n_refs):
         self.ptcl_id  = _np.zeros( n_ptcl   ,dtype=_np.uint32 )
         self.tomo_id  = _np.zeros( n_ptcl   ,dtype=_np.uint32 )
         self.tomo_cix = _np.zeros( n_ptcl   ,dtype=_np.uint32 )
@@ -216,12 +216,12 @@ class Particles:
         self.def_mres = self.def_mres[idx,:]
         self.def_scor = self.def_scor[idx,:]
 
-    def load(self,filename):
+    def _load(self,filename):
         Particles._check_filename(filename)
         
         fp = open(filename,"rb")
         n_ptcl, n_proj, n_refs = self._load_header(fp)
-        self.alloc(n_ptcl,n_proj,n_refs)
+        self._alloc(n_ptcl,n_proj,n_refs)
         bytes_per_ptcl = 4*( 10 + 8*n_refs + 7*n_proj + 8*n_proj )
         for i in range(n_ptcl):
             buffer = _np.frombuffer(fp.read(bytes_per_ptcl),_np.float32)
@@ -281,7 +281,7 @@ class Particles:
         
         for j in range(P):
             buffer[i  ] = t[ix,j,0]
-            buffer[i+2] = t[ix,j,1]
+            buffer[i+1] = t[ix,j,1]
             i = i+2
         
         for j in range(P):
@@ -340,28 +340,6 @@ class Particles:
                                          self.def_U   ,self.def_V   ,self.def_ang,
                                          self.def_phas,self.def_Bfct,self.def_ExFl,
                                          self.def_mres,self.def_scor)
-            
-            #_np.array( (self.ptcl_id[ix],self.tomo_id[ix],self.tomo_cix[ix]), dtype=_np.uint32 ).tofile(fp)
-            #self.position[ix,:].tofile(fp)
-            #_np.array( (self.ref_cix[ix],self.half_id[ix]), dtype=_np.uint32  ).tofile(fp)
-            #_np.array( (self.extra_1[ix],self.extra_2[ix]), dtype=_np.float32 ).tofile(fp)
-            
-            # 3D Alignment
-            #self.ali_eu[:,ix,:].flatten().tofile(fp)
-            #self.ali_t [:,ix,:].flatten().tofile(fp)
-            #self.ali_cc[:,ix]  .flatten().tofile(fp)
-            #self.ali_w [:,ix]  .flatten().tofile(fp)
-            
-            # 2D Alignment
-            #self.prj_eu[ix,:,:].flatten().tofile(fp)
-            #self.prj_t [ix,:,:].flatten().tofile(fp)
-            #self.prj_cc[ix,:]  .flatten().tofile(fp)
-            #self.prj_w [ix,:]  .flatten().tofile(fp)
-            
-            # Defocus
-            #defocus = _np.stack((self.def_U   [ix,:], self.def_V   [ix,:], self.def_ang[ix,:],
-            #                     self.def_phas[ix,:], self.def_Bfct[ix,:], self.def_ExFl[ix,:],
-            #                     self.def_mres[ix,:], self.def_scor[ix,:])).transpose()
             buffer.tofile(fp)
         fp.close()
     
@@ -549,14 +527,14 @@ class Particles:
         for i in range( tomograms.n_tomos ):
             tomo_range = Particles._get_tomo_limit_angstroms(tomograms.tomo_size[i],tomograms.pix_size[i],brdr)
             t_x = _np.arange(0,tomo_range[0],step,dtype=_np.float32)
-            t_x = _np.concatenate( (-t_x[::-1],t_x[1:]),dtype=_np.float32 )
+            t_x = _np.concatenate( (-t_x[::-1],t_x[1:]) )
             t_y = _np.arange(0,tomo_range[1],step,dtype=_np.float32)
-            t_y = _np.concatenate( (-t_y[::-1],t_y[1:]),dtype=_np.float32 )
-            x,y,z = _np.meshgrid(t_x,t_y,(0))
+            t_y = _np.concatenate( (-t_y[::-1],t_y[1:]) )
+            x,y,z = _np.float32(_np.meshgrid(t_x,t_y,(0)))
             pos = _np.stack( (x.flatten(),y.flatten(),z.flatten()), ).transpose()
-            pts = _np.concatenate( (pts,pos),dtype=_np.float32 )
-            tcx = _np.concatenate( (tcx,_np.repeat(_np.uint32(i),pos.shape[0])),dtype=_np.uint32 )
-            tid = _np.concatenate( (tid,_np.repeat(tomograms.tomo_id[i],pos.shape[0])),dtype=_np.uint32 )
+            pts = _np.concatenate( (pts,pos) )
+            tcx = _np.concatenate( (tcx,_np.repeat(_np.uint32(i),pos.shape[0])) )
+            tid = _np.concatenate( (tid,_np.repeat(tomograms.tomo_id[i],pos.shape[0])) )
         
         ptcls = Particles(n_ptcl=pts.shape[0],n_proj=tomograms.n_projs,n_refs=1)
         ptcls.ptcl_id[:]    = _np.arange(1,pts.shape[0]+1,dtype=_np.uint32)
@@ -579,16 +557,16 @@ class Particles:
         for i in range( tomograms.n_tomos ):
             tomo_range = Particles._get_tomo_limit_angstroms(tomograms.tomo_size[i],tomograms.pix_size[i],brdr)
             t_x = _np.arange(0,tomo_range[0],step,dtype=_np.float32)
-            t_x = _np.concatenate( (-t_x[::-1],t_x[1:]),dtype=_np.float32 )
+            t_x = _np.concatenate( (-t_x[::-1],t_x[1:]) )
             t_y = _np.arange(0,tomo_range[1],step,dtype=_np.float32)
-            t_y = _np.concatenate( (-t_y[::-1],t_y[1:]),dtype=_np.float32 )
+            t_y = _np.concatenate( (-t_y[::-1],t_y[1:]) )
             t_z = _np.arange(0,tomo_range[2],step,dtype=_np.float32)
-            t_z = _np.concatenate( (-t_z[::-1],t_z[1:]),dtype=_np.float32 )
-            x,y,z = _np.meshgrid(t_x,t_y,t_z)
+            t_z = _np.concatenate( (-t_z[::-1],t_z[1:]) )
+            x,y,z = _np.float32(_np.meshgrid(t_x,t_y,t_z))
             pos = _np.stack( (x.flatten(),y.flatten(),z.flatten()), ).transpose()
-            pts = _np.concatenate( (pts,pos),dtype=_np.float32 )
-            tcx = _np.concatenate( (tcx,_np.repeat(_np.uint32(i),pos.shape[0])),dtype=_np.uint32 )
-            tid = _np.concatenate( (tid,_np.repeat(tomograms.tomo_id[i],pos.shape[0])),dtype=_np.uint32 )
+            pts = _np.concatenate( (pts,pos) )
+            tcx = _np.concatenate( (tcx,_np.repeat(_np.uint32(i),pos.shape[0])) )
+            tid = _np.concatenate( (tid,_np.repeat(tomograms.tomo_id[i],pos.shape[0])) )
         
         ptcls = Particles(n_ptcl=pts.shape[0],n_proj=tomograms.n_projs,n_refs=1)
         ptcls.ptcl_id[:]    = _np.arange(1,pts.shape[0]+1,dtype=_np.uint32)
@@ -599,6 +577,61 @@ class Particles:
         ptcls.halfsets_even_odd()
         ptcls.update_defocus(tomograms)
         return ptcls
+
+    @staticmethod
+    def _validate_import_args(position,ptcls_id,tomos_id):
+        if position.ndim != 2 or position.shape[1] != 3:
+            raise ValueError('Position must be a N-by-3 2D matrix')
+        N = position.shape[0]
+        if ptcls_id.shape[0] != N:
+            raise ValueError('Number of entries in ptcls_id do not match position')
+        if tomos_id.shape[0] != N:
+            raise ValueError('Number of entries in tomos_id do not match position')
+        return N
+        
+    @staticmethod
+    def _calc_tomo_cix(tomo_cix,tomograms,tomos_id):
+        LUT = {}
+        for tid in range(tomograms.n_tomos):
+            LUT[ int(tomograms.tomo_id[tid]) ] = tid
+        for i in range(tomos_id.shape[0]):
+            tomo_cix[i] = LUT[int(tomos_id[i])]
+    
+    @staticmethod
+    def _calc_position(p_out,p_in,tomograms,tomos_cix,apix):
+        for i in range(p_in.shape[0]):
+            pos = p_in[i,:] - tomograms.tomo_size[tomos_cix[i]]/2
+            p_out[i,:] = apix*pos
+            
+    @staticmethod
+    def import_data(tomograms,position,tomos_id,ptcls_id=None,randomize_angles=False):
+        if ptcls_id is None:
+            ptcls_id = _np.arange(tomos_id.shape[0])
+        apix = Particles._validate_tomogram(tomograms)
+        N = Particles._validate_import_args(position,ptcls_id,tomos_id)
+        ptcls = Particles(n_ptcl=N,n_proj=tomograms.n_projs,n_refs=1)
+        ptcls.ptcl_id[:]    = ptcls_id
+        ptcls.tomo_id [:]   = tomos_id
+        ptcls.ali_w[:]      = 1
+        Particles._calc_tomo_cix(ptcls.tomo_cix,tomograms,tomos_id)
+        Particles._calc_position(ptcls.position,position,tomograms,ptcls.tomo_cix,apix)
+        ptcls.halfsets_even_odd()
+        ptcls.sort()
+        ptcls.update_defocus(tomograms)
+        if randomize_angles:
+            ptcls.ali_eu[:,:,:] = _np.random.uniform(0,_np.pi,ptcls.ali_eu.shape)
+        return ptcls
+    
+    def export_positions(self,tomograms,ref_cix=0):
+        apix = Particles._validate_tomogram(tomograms)
+        pos = _np.zeros_like(self.pos(ref_cix))
+        for i in range(pos.shape[0]):
+            tmp = self.position[i,:] + self.ali_t[ref_cix,i,:]
+            tmp = tmp/apix
+            pos[i,:] = tmp + tomograms.tomo_size[self.tomo_cix[i]]/2
+        return pos
+
+
 
 
 

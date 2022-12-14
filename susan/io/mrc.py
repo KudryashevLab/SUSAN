@@ -38,7 +38,7 @@ def read(filename):
     elif mrc_mode == 6:
         in_type = _np.uint16
     elif mrc_mode == 12:
-        in_type = np.float16
+        in_type = _np.float16
     else:
         raise ValueError
 
@@ -64,19 +64,23 @@ def get_info(filename):
     elif mrc_mode == 6:
         in_type = _np.uint16
     elif mrc_mode == 12:
-        in_type = np.float16
+        in_type = _np.float16
     else:
         raise ValueError
 
     return mrc_shape,pix_size,in_type
 
-def write(data,filename,apix=1):
+def write(data,filename,apix=1,ispg=None,fill_statistics=True):
     apix = _np.array(apix,dtype=_np.float32)
     if apix.size == 1:
         apix = _np.array((apix,apix,apix))
     apix = apix*_np.array(data.shape,dtype=_np.float32)
-    apix_uint32 = apix.view(_np.uint32)
     hdr  = _np.zeros(256,dtype=_np.uint32)
+    apix_uint32 = apix.view(_np.uint32)
+    
+    if ispg is None:
+        ispg = (data.shape[0]==data.shape[1]) & (data.shape[2]==data.shape[1])
+    
     hdr[0]  = data.shape[2]
     hdr[1]  = data.shape[1]
     hdr[2]  = data.shape[0]
@@ -93,11 +97,23 @@ def write(data,filename,apix=1):
     hdr[16] = 1
     hdr[17] = 2
     hdr[18] = 3
+    hdr[22] = ispg
     hdr[27] =      20140 # MRC2014 format
     hdr[52] =  542130509 # 0x2050414B ('MAP ')
     hdr[53] =      17476 # 0x00004444 little-endian
+    
+    if fill_statistics:
+        hdr[19] = data.min().view(_np.uint32)
+        hdr[20] = data.max().view(_np.uint32)
+        hdr[21] = data.mean().view(_np.uint32)
+        hdr[54] = data.std().view(_np.uint32)
+    
     f = open(filename,'w')
     hdr.tofile(f)
-    data.tofile(f)
+    if data.dtype == 'float64':
+        tmp = _np.float32(data)
+        tmp.tofile(f)
+    else:
+        data.tofile(f)
     f.close()
 

@@ -50,7 +50,7 @@ class Manager:
         if box_size is None:
             fp = open(prj_name+"/info.prjtxt","r")
             self.prj_name = _prsr.read(fp,'name')
-            self.box_size = int(_prsr.read(fp,'name'))
+            self.box_size = int(_prsr.read(fp,'box_size'))
             fp.close()
         else:
             if not _file_exists(prj_name):
@@ -175,17 +175,15 @@ class Manager:
         self.aligner.list_gpus_ids     = self.list_gpus_ids
         self.aligner.threads_per_gpu   = self.threads_per_gpu
         self.aligner.dimensionality    = ite_type
-        
-        self.aligner.mpi.cmd = self.mpi.cmd
-        self.aligner.mpi.arg = self.mpi.arg
+        self.aligner.verbosity         = self.verbosity
         
         print( '  [%dD Alignment] Start:' % ite_type )
         
         start_time = _ssa_utils.time_now()
         if self.mpi.arg > 1:
-            self.aligner.mpi_params.cmd = self.mpi.cmd
-            self.aligner.mpi_params.arg = self.mpi.arg
-            self.aligner.align_mpi(cur.ptcl_rslt,prv.reference,self.tomogram_file,prv.ptcl_rslt,self.box_size,self.mpi_nodes)
+            self.aligner.mpi.cmd = self.mpi.cmd
+            self.aligner.mpi.arg = self.mpi.arg
+            self.aligner.align_mpi(cur.ptcl_rslt,prv.reference,self.tomogram_file,prv.ptcl_rslt,self.box_size)
         else:
             self.aligner.align(cur.ptcl_rslt,prv.reference,self.tomogram_file,prv.ptcl_rslt,self.box_size)
         elapsed = _ssa_utils.time_now()-start_time
@@ -246,13 +244,14 @@ class Manager:
     def exec_averaging(self,cur,prv):
         self.averager.list_gpus_ids     = self.list_gpus_ids
         self.averager.threads_per_gpu   = self.threads_per_gpu
+        self.averager.verbosity         = self.verbosity
         
         print( '  [Reconstruct Maps] Start:' )
         start_time = _ssa_utils.time_now()
         if self.mpi.arg > 1:
-            self.averager.mpi_params.cmd = self.mpi.cmd
-            self.averager.mpi_params.arg = self.mpi.arg
-            self.averager.reconstruct_mpi(cur.ite_dir+'map',self.tomogram_file,cur.ptcl_temp,self.box_size,self.mpi_nodes)
+            self.averager.mpi.cmd = self.mpi.cmd
+            self.averager.mpi.arg = self.mpi.arg
+            self.averager.reconstruct_mpi(cur.ite_dir+'map',self.tomogram_file,cur.ptcl_temp,self.box_size)
         else:
             self.averager.reconstruct(cur.ite_dir+'map',self.tomogram_file,cur.ptcl_temp,self.box_size)
         elapsed = _ssa_utils.time_now()-start_time

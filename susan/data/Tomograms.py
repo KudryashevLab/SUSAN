@@ -26,10 +26,10 @@ class Tomograms:
     
     def __init__(self,filename=None,n_tomo=0,n_proj=0):
         if isinstance(filename, str):
-            self.load(filename) 
+            self._load(filename) 
         else:
             if n_tomo > 0 and n_proj > 0:
-                self.alloc(n_tomo,n_proj)
+                self._alloc(n_tomo,n_proj)
             else:
                 raise NameError('Invalid input')
     
@@ -47,7 +47,7 @@ class Tomograms:
     #def __repr__(self):
     #    return "Tomograms"
     
-    def alloc(self,n_tomos,n_projs):
+    def _alloc(self,n_tomos,n_projs):
         self.tomo_id    = _np.zeros( n_tomos   ,dtype=_np.uint32 )
         self.tomo_size  = _np.zeros((n_tomos,3),dtype=_np.uint32 )
         self.stack_file = []
@@ -74,13 +74,13 @@ class Tomograms:
         for i in range(n_tomos):
             self.stack_file.append('')
 
-    def load(self,filename):
+    def _load(self,filename):
         Tomograms._check_filename(filename)
         
         fp = open(filename,"rb")
         n_tomos = int(_prsr.read(fp,'num_tomos'))
         n_projs = int(_prsr.read(fp,'num_projs'))
-        self.alloc(n_tomos,n_projs)
+        self._alloc(n_tomos,n_projs)
         for i in range(n_tomos):
             self.tomo_id[i]      = _np.uint32((_prsr.read(fp,'tomo_id')))
             self.tomo_size[i,:]  = _np.fromstring(_prsr.read(fp,'tomo_size'),_np.uint32,sep=',')
@@ -93,18 +93,19 @@ class Tomograms:
             self.num_proj[i]     = _np.uint32((_prsr.read(fp,'num_proj')))
             
             P = self.num_proj[i]
-            buffer = _np.loadtxt(fp,dtype=_np.float32,comments='#',ndmin=2,max_rows=P)
-            self.proj_eZYZ [i,:P,:] = buffer[:,0:3]
-            self.proj_shift[i,:P,:] = buffer[:,3:5]
-            self.proj_wgt  [i,:P]   = buffer[:,5]
-            self.def_U     [i,:P]   = buffer[:,6]
-            self.def_V     [i,:P]   = buffer[:,7]
-            self.def_ang   [i,:P]   = buffer[:,8]
-            self.def_phas  [i,:P]   = buffer[:,9]
-            self.def_Bfct  [i,:P]   = buffer[:,10]
-            self.def_ExFl  [i,:P]   = buffer[:,11]
-            self.def_mres  [i,:P]   = buffer[:,12]
-            self.def_scor  [i,:P]   = buffer[:,13]
+            for p in range(P):
+                buffer = _np.fromstring(_prsr.read_line(fp),dtype=_np.float32,sep=' ')
+                self.proj_eZYZ [i,p,:] = buffer[0:3]
+                self.proj_shift[i,p,:] = buffer[3:5]
+                self.proj_wgt  [i,p]   = buffer[5]
+                self.def_U     [i,p]   = buffer[6]
+                self.def_V     [i,p]   = buffer[7]
+                self.def_ang   [i,p]   = buffer[8]
+                self.def_phas  [i,p]   = buffer[9]
+                self.def_Bfct  [i,p]   = buffer[10]
+                self.def_ExFl  [i,p]   = buffer[11]
+                self.def_mres  [i,p]   = buffer[12]
+                self.def_scor  [i,p]   = buffer[13]
     
     def save(self,filename):
         Tomograms._check_filename(filename)
@@ -156,7 +157,7 @@ class Tomograms:
         self.proj_eZYZ[idx,:,:] = 0
         self.proj_eZYZ[idx,:self.num_proj[idx],1] = angs
 
-    def set_defocus(self,idx,def_file):
+    def set_defocus(self,idx,def_file,skip_max_res=True):
         if( _is_ext(def_file,'defocus') ):
             line = _np.loadtxt(def_file,dtype=_np.float32,comments='#',max_rows=1)
             version = int(line[-1])
@@ -188,5 +189,7 @@ class Tomograms:
             self.def_ExFl  [idx,:P]   = buffer[:,5]
             self.def_mres  [idx,:P]   = buffer[:,6]
             self.def_scor  [idx,:P]   = buffer[:,7]
+            if skip_max_res:
+                self.def_mres[idx,:P] = 0
         else:
             raise NameError('Invalid filename')

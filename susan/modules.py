@@ -17,14 +17,7 @@
 ###########################################################################
 
 import os as _os
-from importlib.util import find_spec as _find_spec
-from os.path import dirname as _dir_name
 import susan.utils.datatypes as _dt
-
-def _bin_path():
-    tmp = _find_spec('susan')
-    rslt = _dir_name(tmp.origin)
-    return rslt+'/../+SUSAN/bin/'
 
 def _get_gpu_str(list_gpus_ids):
     gpu_str = ','.join( str(num) for num in  list_gpus_ids )
@@ -41,6 +34,7 @@ class Aligner:
         self.extra_padding     = 0
         self.allow_drift       = True
         self.halfsets_independ = False
+        self.use_cc_sigma      = False
         self.cone              = _dt.search_params(0,1)
         self.inplane           = _dt.search_params(0,1)
         self.refine            = _dt.refine_params(0,1)
@@ -59,7 +53,7 @@ class Aligner:
         self.inplane.span = i_r
         self.inplane.step = i_s
         
-    def set_offset_search(self,off_range,off_step,off_type='ellipsoid'):
+    def set_offset_search(self,off_range,off_step=1,off_type='ellipsoid'):
         if not off_type in ['ellipsoid','cylinider']:
             raise ValueError('Invalid offset type. Only "ellipsoid" or "cylinder" are valid')
         
@@ -74,7 +68,7 @@ class Aligner:
         self.offset.step = off_step
         self.offset.kind = off_type
         
-    def validate(self):
+    def _validate(self):
         if not self.dimensionality in [2,3]:
             raise ValueError('Invalid dimensionality type. Only 3 or 3 are valid')
         
@@ -109,7 +103,7 @@ class Aligner:
                 raise ValueError('Inplane: Step cannot be larger than Range/Span')
 
     def get_args(self,ptcls_out,refs_file,tomos_file,ptcls_in,box_size):
-        self.validate()
+        self._validate()
         n_threads = len(self.list_gpus_ids)*self.threads_per_gpu
         gpu_str   = _get_gpu_str(self.list_gpus_ids)
         args =        ' -tomos_file '      + tomos_file
@@ -128,6 +122,7 @@ class Aligner:
         args = args + ' -rolloff_f %f'     % self.bandpass.rolloff
         args = args + ' -p_symmetry '      + self.pseudo_symmetry
         args = args + ' -ali_halves %d'    % self.halfsets_independ
+        args = args + ' -use_sigma %d'     % self.use_cc_sigma
         args = args + ' -cone %f,%f'       % (self.cone.span,self.cone.step)
         args = args + ' -inplane %f,%f'    % (self.inplane.span,self.inplane.step)
         args = args + ' -refine %d,%d'     % (self.refine.factor,self.refine.levels)
@@ -138,16 +133,14 @@ class Aligner:
         return args
     
     def align(self,ptcls_out,refs_file,tomos_file,ptcls_in,box_size):
-        cmd = _bin_path() + 'susan_aligner'
-        cmd = cmd + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, box_size)
+        cmd = 'susan_aligner ' + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, box_size)
         rslt = _os.system(cmd)
         if not rslt == 0:
             raise NameError('Error executing the alignment: ' + cmd)
     
     def align_mpi(self,ptcls_out,refs_file,tomos_file,ptcls_in,box_size):
-        cmd = self.mpi_params.cmd % self.mpi_params.arg
-        cmd = cmd + _bin_path() + 'susan_aligner_mpi'
-        cmd = cmd + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, box_size)
+        cmd = self.mpi.gen_cmd() + ' ' + _os.path.dirname(_os.path.abspath(__file__)) + '/bin/susan_aligner_mpi ' + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, 
+box_size)
         rslt = _os.system(cmd)
         if not rslt == 0:
             raise NameError('Error executing the alignment: ' + cmd)
@@ -170,7 +163,7 @@ class Averager:
         self.mpi               = _dt.mpi_params('srun -n %d ',1)
         self.verbosity         = 0
         
-    def validate(self):
+    def _validate(self):
         if not self.padding_type in ['zero','noise']:
             raise NameError('Invalid padding type. Only "zero" or "noise" are valid')
         
@@ -181,7 +174,7 @@ class Averager:
             raise NameError('Invalid ctf correction type. Only "none", "phase_flip", "wiener" ot "wiener_ssnr" are valid')
             
     def get_args(self,out_pfx,tomos_file,ptcls_in,box_size):
-        self.validate()
+        self._validate()
         if self.bandpass.lowpass <= 0:
             self.bandpass.lowpass = box_size/2-1
         n_threads = len(self.list_gpus_ids)*self.threads_per_gpu
@@ -207,16 +200,13 @@ class Averager:
         return args
     
     def reconstruct(self,out_pfx,tomos_file,ptcls_in,box_size):
-        cmd = _bin_path() + 'susan_reconstruct'
-        cmd = cmd + self.get_args(out_pfx,tomos_file,ptcls_in,box_size)
+        cmd = 'susan_reconstruct ' + self.get_args(out_pfx,tomos_file,ptcls_in,box_size)
         rslt = _os.system(cmd)
         if not rslt == 0:
             raise NameError('Error executing the reconstruction: ' + cmd)
     
     def reconstruct_mpi(self,out_pfx,tomos_file,ptcls_in,box_size):
-        cmd = self.mpi_params.cmd % self.mpi_params.arg
-        cmd = cmd + _bin_path() + 'susan_reconstruct_mpi'
-        cmd = cmd + self.get_args(out_pfx,tomos_file,ptcls_in,box_size)
+        cmd = self.mpi.gen_cmd() + ' ' + _os.path.dirname(_os.path.abspath(__file__)) + '/bin/susan_reconstruct_mpi' + self.get_args(out_pfx,tomos_file,ptcls_in,box_size)
         rslt = _os.system(cmd)
         if not rslt == 0:
             raise NameError('Error executing the reconstruction: ' + cmd)
@@ -238,7 +228,7 @@ class CtfEstimator:
         self.verbose           = 0
         #self.verbosity         = 0
         
-    def validate(self):
+    def _validate(self):
         if not self.refine_defocus.step > 0:
             raise ValueError('The steps values must be larger than 0')
         
@@ -252,7 +242,7 @@ class CtfEstimator:
             raise ValueError('Defocus (angstroms): min is larger than max')
             
     def get_args(self,out_dir,tomos_file,ptcls_in,box_size):
-        self.validate()
+        self._validate()
         if out_dir[-1] == '/':
             out_dir = out_dir[:-1]
         n_threads = len(self.list_gpus_ids)*self.threads_per_gpu
@@ -275,8 +265,7 @@ class CtfEstimator:
         return args
     
     def estimate(self,out_dir,tomos_file,ptcls_in,box_size):
-        cmd = _bin_path() + 'susan_estimate_ctf'
-        cmd = cmd + self.get_args(out_dir,tomos_file,ptcls_in,box_size)
+        cmd = 'susan_estimate_ctf ' + self.get_args(out_dir,tomos_file,ptcls_in,box_size)
         rslt = _os.system(cmd)
         if not rslt == 0:
             raise NameError('Error executing the CTF estimation: ' + cmd)
@@ -295,24 +284,24 @@ class CtfRefiner:
         self.estimate_dose_wgt = False
         self.defocus_angstroms = _dt.search_params(1000,100)
         self.angles            = _dt.search_params(2,1)
-        #self.mpi               = _dt.mpi_params('srun -n %d ',1)
+        self.mpi               = _dt.mpi_params('srun -n %d ',1)
         self.verbosity         = 0
         
-    def validate(self):
+    def _validate(self):
         if not self.padding_type in ['zero','noise']:
             raise ValueError('Invalid padding type. Only "zero" or "noise" are valid')
         
         if not self.defocus_angstroms.step > 0 or not self.angles.step > 0:
             raise ValueError('The steps values must be larger than 0')
         
-        if self.defocus_angstroms.span < self.offset.step:
+        if self.defocus_angstroms.span < self.defocus_angstroms.step:
             raise ValueError('Defocus (Angstroms): Step cannot be larger than Range/Span')
 
-        if self.angles.span < self.cone.step:
+        if self.angles.span < self.angles.step:
             raise ValueError('ANgles (degrees): Step cannot be larger than Range/Span')
 
     def get_args(self,ptcls_out,refs_file,tomos_file,ptcls_in,box_size):
-        self.validate()
+        self._validate()
         n_threads = len(self.list_gpus_ids)*self.threads_per_gpu
         gpu_str   = _get_gpu_str(self.list_gpus_ids)
         args =        ' -tomos_file '      + tomos_file
@@ -334,9 +323,15 @@ class CtfRefiner:
         return args
     
     def refine(self,ptcls_out,refs_file,tomos_file,ptcls_in,box_size):
-        cmd = _bin_path() + 'susan_refine_ctf'
-        cmd = cmd + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, box_size)
+        cmd = 'susan_ctf_refiner ' + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, box_size)
         rslt = _os.system(cmd)
         if not rslt == 0:
-            raise NameError('Error executing the alignment: ' + cmd)
+            raise NameError('Error executing the refinement: ' + cmd)
     
+    def refine_mpi(self,ptcls_out,refs_file,tomos_file,ptcls_in,box_size):
+        cmd = self.mpi.gen_cmd() + ' ' + _os.path.dirname(_os.path.abspath(__file__)) + '/bin/susan_ctf_refiner_mpi ' + self.get_args(ptcls_out, refs_file, tomos_file, ptcls_in, 
+box_size)
+        rslt = _os.system(cmd)
+        if not rslt == 0:
+            raise NameError('Error executing the refinement: ' + cmd)
+
