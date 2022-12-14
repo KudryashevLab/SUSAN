@@ -1,130 +1,168 @@
-# SUbStack ANalysis (SUSAN): High-performance Subtomogram Averaging
-`SUSAN` is a sub-tomogram averaging (StA) workflow for CryoET based on sub-stacks of images instead sub-volumes of tomograms. Such an approach substantially lowers computational complexity to speed up StA processing.
+# SUbStack ANalysis (SUSAN): High performance Subtomogram Averaging
+**(Personal/Development version)**
 
-## About this repository
+## Contents
+- [Description](#description)
+- [Building and setup instructions](#building-and-setup-instructions)
+  - [Dependencies](#dependencies)
+  - [Setup and compilation](#initial-setup-and-compilation)
+  - [`Python` setup](#python-setup)
+  - [`Matlab` setup](#matlab-setup)
+- [Installing in a `conda` environment (`Python`)](#installing-susan-in-a-conda-environment-for-python)
+- [Tutorial](#tutorial)
 
-This is a fork of the [`SUSAN` original repository](https://github.com/rkms86/SUSAN) which was developed by Ricardo Miguel Sanchez Loyaza in the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology at [MPIBP (Max Planck Institute of Biophysics)](https://www.biophys.mpg.de/en) in Frankfurt (Hesse), Germany.
+## Description
+`SUSAN` is a low-level/mid-level framework for fast Subtomogram Averaging (StA) for CryoEM. It uses *susbtacks* instead of *subtomograms* that are cropped *on-the-fly* from the aligned stacks to reduce the computational complexity and to increase the overall performace of the StA pipeline.
 
-This fork repository was created for `SUSAN` usage support by members of established in August 2021
-[In situ Structural Biology Group of Dr. Misha Kudryashev](https://www.mdc-berlin.de/kudryashev) at the [MDCMM (Max Delbrück Center of Molecular Medicine)](https://www.mdc-berlin.de/) in Berlin, Germany.
+`SUSAN` was designed to be modular, flexible and fast. It is conformed by two layers:
+- **Low-level layer**: Set of executables that perform the demanding computations. They were written in `C++` using a minimal set of dependencies: `Eigen`, as a header-only mathemetical engine, `CUDA` for GPU acceleration, and `PThreads` for lightweight multi-threading. Optionally, they can be built with [`MPI`](https://en.wikipedia.org/wiki/Message_Passing_Interface) support to run in multi-node environments.
+- **Mid-level layer**: Set of wrappers to the previous layer that simplify its use and provides a set of non time-critical operations. It is used to create the workflows or pipelines as scripts with wrappers for `Matlab` and for `Python`. The `Matlab` one was designed to complement [DYNAMO](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page), while the `Python` one is provided to enable integration to other pipelines based on this language.
 
-## Documentation
+### About
+I started the development of `SUSAN` at the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology [Max Planck Institute of Biophysics (MPIBP)](https://www.biophys.mpg.de/en) in Frankfurt am Main, Germany. Currently, I am an ARISE fellow at the [Kreshuk group](https://www.embl.org/groups/kreshuk/members/) at the [European Molecular Biology Laboratory (EMBL)](https://www.embl.org/) in Heidelberg, Germany. Dr. Misha Kudryashev has a new [group](https://www.mdc-berlin.de/kudryashev) at the [Max Delbrück Center of Molecular Medicine (MDCMM)](https://www.mdc-berlin.de/) in Berlin, Germany.
 
-`SUSAN` description, documentation on usage & other useful information you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
+`SUSAN` is an Open Source project ([AGPLv3.0](LICENSE))
 
-`SUSAN` is an Open Source project (AGPLv3.0).
-
-## Build instructions
-
-Here we provide build instructions for quick `SUSAN` start-up.
-
+## Building and setup instructions
 ### Dependencies
-- `CUDA` libraries (https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#package-manager-installation)
-- `Eigen` library (https://gitlab.com/libeigen/eigen.git)
-- `gcc-9.x` and upper
-(with C++14/C++17 support for `Eigen` library features; to build gcc-9.x you may use instructions provided here: https://github.com/darrenjs/howto)
-- `cmake-3.22.x` (https://cmake.org/download/)
+- `CUDA`.
+- `Eigen`: As this is needed at compilation time only, there is no need to install it in the system. If not provided by the building environment, it can be installed locally following [this](extern/README.md) instructions.
+- `gcc`.
+- `cmake`.
+- `git`.
+#### Optional
+- `OpenMPI`, or equivalent, for multi-node support
+- `Matlab`
 
-Optional:
-- `OpenMPI` libraries (https://www.open-mpi.org/)
+### Initial setup and compilation
+We assume that `SUSAN` will be installed in the `LOCAL_SUSAN_PATH` folder (`LOCAL_SUSAN_PATH` can be `/home/user/Software/`, for example)
+1. Install the desired dependencies.
+2. Clone `SUSAN` to `LOCAL_SUSAN_PATH`:
+   ```
+   cd LOCAL_SUSAN_PATH
+   git clone https://github.com/rkms86/SUSAN
+   ```
+   - **(Optional)** Install `Eigen`:
+     ```
+     cd LOCAL_SUSAN_PATH/SUSAN/extern
+     git clone https://gitlab.com/libeigen/eigen.git eigen
+     cd eigen
+     mkdir build
+     cd build
+     cmake ../ -DCMAKE_INSTALL_PREFIX=../../eigen_lib
+     make install
+     cd LOCAL_SUSAN_PATH/SUSAN
+     ```
+3. Compile `SUSAN`:
+   ```
+   mkdir bin
+   cd bin
+   cmake ../
+   make -j
+   ```
+   **Note:** The `cmake` procedure detects the availabilty of `OpenMPI` and `Matlab` and compiles their functionalities accordingly.
 
-### Initial setup & compilation
-1. Install listed above dependencies.
-2. Clone `SUSAN` from this repository locally to some location (let's name it `LOCAL_REPOSITORY_PATH`)
-```bash
-cd LOCAL_REPOSITORY_PATH
-git clone https://github.com/KudryashevLab/SUSAN
-```
-3. Clone `Eigen` to the `SUSAN/dependencies`
-```bash
-cd SUSAN
-mkdir dependencies
-cd dependencies
-git clone https://gitlab.com/libeigen/eigen.git eigen
-```
-4. Compile `SUSAN`
-```bash
-cd ../SUSAN/+SUSAN
-mkdir bin
-cd bin
-cmake ..
-make -j
-```
-
-### MATLAB package setup & compilation
-This part assumes that you already performed all the steps above in from `Initial setup & compilation` section & was able to successfully compile `SUSAN`.
-
-1. To setup `MATLAB` package of `SUSAN` you need to install `MATLAB` and make sure, that you setted up all pathes to your `MATLAB` installation correctly and may source `mex` compiler.
-
-2. To be able to use `SUSAN` from `MATLAB` just run the following lines:
-```bash
-cd LOCAL_REPOSITORY_PATH/SUSAN/+SUSAN
-make
-```
-assuming that `LOCAL_REPOSITORY_PATH` is the path to the locally cloned repository location.
-
-3. To use `SUSAN` in `MATLAB` we have to add the location of the package to its working path. So, run `MATLAB` instance and execute in `MATLAB` command line the following:
-```
->> addpath LOCAL_REPOSITORY_PATH/SUSAN/
-```
-To verify the correct installation of the `SUSAN` package in the
-current `MATLAB` instance, check if the documentation can be accessed:
-```
->> help SUSAN
-```
-
-## Setup of MATLAB-based tutorial
-
-Here we provide up-to-date instructions on how to prepare the data to be able to run the tutorial.
-
-1. Prepare a tutorial folder.
-Copy a folder `LOCAL_REPOSITORY_PATH/SUSAN/+SUSAN/tutorial_01` somewhere to store & process tutorial dataset by
-```bash
-cp -R LOCAL_REPOSITORY_PATH/SUSAN/+SUSAN/tutorial_01 TUTORIAL_PATH
-```
-where `TUTORIAL_PATH` is a full path to the folder where to store the content of the `tutorial_01` folder.
-2. Prepare a tutorial raw data.
-Go to `TUTORIAL_PATH/data` and perform the following steps
-  1. Download the tutorial data (`wget` should be installed) by running
-  ```bash
-  ./download_data.sh
+- **(Optional)** To be able to install `SUSAN` as a `Python` package:
   ```
-  2. Produce aligned unbinned & binned stacks (you need to [install `IMOD`](https://bio3d.colorado.edu/imod/) for that) by running  
-  ```bash
-  ./create_binned_aligned_stacks.sh
+  make prepare_python
   ```
-  3. Unpack .gz reference file and masks (`gunzip` should be installed) by running
-  ```bash
-  gzip -d template_bin2.mrc.gz
-  gzip -d mask_sph_bin1.mrc.gz
-  gzip -d mask_sph_bin2.mrc.gz
+  This will install the compiled binaries in the `bin` folder of the `Python` package.
+
+### `Python` setup
+#### Dependencies
+Besides the standard libraries, the `SUSAN` module for `Python` has only two dependencies: [`NumPy`](https://numpy.org/) and [`Numba`](https://numba.pydata.org/). Install them if needed:
+- Using [`conda`](https://conda.io) (or equivalent):
   ```
-3. Open `MATLAB` and setup `SUSAN` path.
-Perform step No.3 from the above section `MATLAB package setup & compilation`.
-4. Enjoy the tutorial!
-In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to folder `TUTORIAL_PATH/susan_projects`, where you may find three scripts:
-- `workflow_basicStA.m` - this is a script for the `Tomograms Info and CTF estimation` and `Basic subtomogram averaging on binned data` sections of the tutorial from `SUSAN` documentation;
-- `workflow_midStA.m` - this is a script for the `Mid-complexity subtomogram averaging on unbinned data` section of the tutorial from `SUSAN` documentation;
-- `workflow.m` - that is a more recent and extended, but yet undocumented, tutorial from the [`SUSAN` original repository](https://github.com/rkms86/SUSAN), which you are free to try as well!
+  conda install numpy numba
+  ```
+- Using [`pip`](https://pypi.org/)
+  ```
+  pip install numpy numba
+  ```
 
-Thus, we suggest you to start with `workflow_basicStA.m` followed by `workflow_midStA.m` to perform tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
+#### Option 1: Using `susan` without installation
+`LOCAL_SUSAN_PATH` must be added to path first and then the `susan` module can be imported. On the `Python` command line, or on a `Python` script:
+```
+import sys
+sys.path.insert(1,'LOCAL_SUSAN_PATH')
+import susan
+```
 
-To visualize results, and generate another reference or mask you may need to [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
+#### Option 2: Install `susan` in the current `Python` environment
+After executing the optional steps for the `Python` module, it can be installed using [`pip`](https://pypi.org/) and the provided [setup.py](setup.py) file. In the  `LOCAL_SUSAN_PATH` execute:
+```
+pip install .
+```
+After this step, the module `susan` should be available to be imported.
 
-## Examples of tutorial results:
+### `Matlab` setup
+`LOCAL_SUSAN_PATH` must be added to path. On the `Matlab` command line, or on a `Matlab` script:
+```
+addpath LOCAL_SUSAN_PATH
+```
 
-Following the scripted tutorials and using the provided data, after the last iteration performed you should get the following 'FSC' curve and the corresponding average structure from 3605 particles (which is the best 90% of initial dataset of 4005 particles):
+## Installing `SUSAN` in a `conda` environment (for `Python`)
+`SUSAN` can be built and installed inside a [`conda` environment](https://conda.io/projects/conda/en/latest/user-guide/concepts/environments.html):
 
-1. After tutorial scripted in `workflow_basicStA.m`:
+-  **(Optional)** Create a new `conda` environment:
+   ```
+   conda create -n susan_env
+   ```
+1. Activate the working environment, for this example we will use `susan_env`
+   ```
+   conda activate susan_env
+   ```
+2. Install the packages needed for building `SUSAN`
+   ```
+   conda install -c conda-forge git cmake make cxx-compiler eigen cudatoolkit-dev
+   ```
+-  **(Optional)** Install `openmpi`:
+   ```
+   conda install openmpi
+   ```
+2. Clone `SUSAN` to `LOCAL_SUSAN_PATH` (For example, `LOCAL_SUSAN_PATH` can be `~/Software/`), compile it and prepare it for the `Python` installation:
+   ```
+   cd LOCAL_SUSAN_PATH
+   git clone https://github.com/rkms86/SUSAN
+   mkdir SUSAN/bin
+   cd SUSAN/bin
+   cmake ../
+   make -j
+   make prepare_python
+   cd ..
+   ```
+3. Install the packages in the current environment
+   ```
+   pip install .
+   ```
+After these step the module `susan` should be available.
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/fsc_bin2_ite10.png" alt="Ribosome FSC after basic StA workflow"/ width="60%">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/ave_bin2_ite10.png" alt="Ribosome map after basic StA workflow"/ width="39%">
-</p>
+## Tutorial
+A tutorial is available for `Python` and `Matlab` for the `mixedCTEM` dataset from the [EMPIAR-10064](https://www.ebi.ac.uk/empiar/EMPIAR-10064/). It is assumed that the `wget` and `gunzip` commands and the `IMOD` framework are installed in the system.
 
-2. After tutorial scripted in `workflow_midStA.m`:
+### Preparing the data
+1. Download the dataset (uses `wget`):
+   ```
+   cd LOCAL_SUSAN_PATH/tutorials/empiar_10064/data
+   ./download_data.sh
+   ```
+2. Create the aligned stacks (uses `IMOD`):
+   ```
+   ./create_binned_aligned_stacks.sh
+   ```
+3. Uncompress the initial reference (uses `gunzip`):
+   ```
+   cd LOCAL_SUSAN_PATH/tutorials/empiar_10064
+   gunzip emd_3420_b4.mrc.gz
+   ```
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/fsc_bin1_ite10.png" alt="Ribosome FSC after mid-complexity StA workflow"/ width="60%">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/ave_bin1_ite10.png" alt="Ribosome map after mid-complexity StA workflow"/ width="39%">
-</p>
+### Running the Tutorial
+Depending on the system setup:
+- For `Matlab` use [workflow.m](tutorials/empiar_10064/workflow.m).
+- For `Python` use [workflow.ipynb](tutorials/empiar_10064/workflow.ipynb) (as a [Jupyter Notebook](https://jupyter.org/install)).
+
+
+
+
+
+
