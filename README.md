@@ -1,5 +1,7 @@
 # SUbStack ANalysis (SUSAN): High performance Subtomogram Averaging
-**(Personal/Development version)**
+**(Distribution version)**
+
+Last time synchronized with [upstream repository](https://github.com/rkms86/SUSAN) on 2022-Dec-14.
 
 ## Contents
 - [Description](#description)
@@ -19,9 +21,20 @@
 - **Mid-level layer**: Set of wrappers to the previous layer that simplify its use and provides a set of non time-critical operations. It is used to create the workflows or pipelines as scripts with wrappers for `Matlab` and for `Python`. The `Matlab` one was designed to complement [DYNAMO](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page), while the `Python` one is provided to enable integration to other pipelines based on this language.
 
 ### About
-I started the development of `SUSAN` at the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology [Max Planck Institute of Biophysics (MPIBP)](https://www.biophys.mpg.de/en) in Frankfurt am Main, Germany. Currently, I am an ARISE fellow at the [Kreshuk group](https://www.embl.org/groups/kreshuk/members/) at the [European Molecular Biology Laboratory (EMBL)](https://www.embl.org/) in Heidelberg, Germany. Dr. Misha Kudryashev has a new [group](https://www.mdc-berlin.de/kudryashev) at the [Max Delbrück Center of Molecular Medicine (MDCMM)](https://www.mdc-berlin.de/) in Berlin, Germany.
+This is a fork of the `SUSAN` [original repository](https://github.com/rkms86/SUSAN) which was developed by Ricardo Miguel Sanchez Loyaza in the [Independent Research Group (Sofja Kovaleskaja) of Dr. Misha Kudryashev](https://www.biophys.mpg.de/2149775/members) at the Department of Structural Biology at [MPIBP (Max Planck Institute of Biophysics)](https://www.biophys.mpg.de/en) in Frankfurt am Main, Germany. Currently, he is an ARISE fellow at the [Kreshuk group](https://www.embl.org/groups/kreshuk/members/) at the [European Molecular Biology Laboratory (EMBL)](https://www.embl.org/) in Heidelberg, Germany.
+
+This fork repository was created for `SUSAN` usage support by members of the established in August 2021
+[In situ Structural Biology Group of Dr. Misha Kudryashev](https://www.mdc-berlin.de/kudryashev) at the [MDCMM (Max Delbrück Center of Molecular Medicine)](https://www.mdc-berlin.de/) in Berlin, Germany.
 
 `SUSAN` is an Open Source project ([AGPLv3.0](LICENSE))
+
+### Repository structure
+Repository branches are:
+- `main` - updated with [upstream repository](https://github.com/rkms86/SUSAN) version;
+- `main_last`- the version before the latest update with upstream repository had been made;
+- other branches - development, synchronization with upstream repository, etc.
+
+(see the latest update date in the top of this page for the current branch)
 
 ## Building and setup instructions
 ### Dependencies
@@ -160,9 +173,3 @@ A tutorial is available for `Python` and `Matlab` for the `mixedCTEM` dataset fr
 Depending on the system setup:
 - For `Matlab` use [workflow.m](tutorials/empiar_10064/workflow.m).
 - For `Python` use [workflow.ipynb](tutorials/empiar_10064/workflow.ipynb) (as a [Jupyter Notebook](https://jupyter.org/install)).
-
-
-
-
-
-
