@@ -1,4 +1,9 @@
 # SUbStack ANalysis (SUSAN): High-performance Subtomogram Averaging
+**(Distribution version)**
+
+Last time synchronized with [upstream repository](https://github.com/rkms86/SUSAN) on 2022-Jul-17.
+
+## Description
 `SUSAN` is a sub-tomogram averaging (StA) workflow for CryoET based on sub-stacks of images instead sub-volumes of tomograms. Such an approach substantially lowers computational complexity to speed up StA processing.
 
 ## About this repository
@@ -7,6 +12,12 @@ This is a fork of the [`SUSAN` original repository](https://github.com/rkms86/SU
 
 This fork repository was created for `SUSAN` usage support by members of established in August 2021
 [In situ Structural Biology Group of Dr. Misha Kudryashev](https://www.mdc-berlin.de/kudryashev) at the [MDCMM (Max Delbrück Center of Molecular Medicine)](https://www.mdc-berlin.de/) in Berlin, Germany.
+
+### Repository structure
+Repository branches are:
+- `main` - updated with [upstream repository](https://github.com/rkms86/SUSAN) version;
+- `main_last`- the version before the latest update with upstream repository had been made;
+- other branches - development, synchronization with upstream repository, etc.
 
 ## Documentation
 
@@ -110,21 +121,3 @@ In `MATLAB` instance, where you activated `SUSAN` on the previous step, go to fo
 Thus, we suggest you to start with `workflow_basicStA.m` followed by `workflow_midStA.m` to perform tutorial instructions from the `SUSAN` documentation which you may [download here](https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/doc/susan_documentation.pdf).
 
 To visualize results, and generate another reference or mask you may need to [install and use `Dynamo`](https://wiki.dynamo.biozentrum.unibas.ch/w/index.php/Main_Page).
-
-## Examples of tutorial results:
-
-Following the scripted tutorials and using the provided data, after the last iteration performed you should get the following 'FSC' curve and the corresponding average structure from 3605 particles (which is the best 90% of initial dataset of 4005 particles):
-
-1. After tutorial scripted in `workflow_basicStA.m`:
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/fsc_bin2_ite10.png" alt="Ribosome FSC after basic StA workflow"/ width="60%">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/ave_bin2_ite10.png" alt="Ribosome map after basic StA workflow"/ width="39%">
-</p>
-
-2. After tutorial scripted in `workflow_midStA.m`:
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/fsc_bin1_ite10.png" alt="Ribosome FSC after mid-complexity StA workflow"/ width="60%">
-<img src="https://raw.githubusercontent.com/KudryashevLab/SUSAN/main/%2BSUSAN/tutorial/images/ave_bin1_ite10.png" alt="Ribosome map after mid-complexity StA workflow"/ width="39%">
-</p>
