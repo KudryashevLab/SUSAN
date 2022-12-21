@@ -22,7 +22,8 @@ function susan_path = path()
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-what_susan = what('SUSAN');
-susan_path = what_susan(1).path;
+what_susan_matlab = what('+SUSAN');
+what_susan = dir(fullfile(what_susan_matlab(1).path, '..'));
+susan_path = what_susan(1).folder;
 
 end
