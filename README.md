@@ -64,10 +64,10 @@ We assume that `SUSAN` will be installed in the `LOCAL_SUSAN_PATH` folder (`LOCA
      cd build
      cmake ../ -DCMAKE_INSTALL_PREFIX=../../eigen_lib
      make install
-     cd LOCAL_SUSAN_PATH/SUSAN
      ```
 3. Compile `SUSAN`:
    ```
+   cd LOCAL_SUSAN_PATH/SUSAN
    mkdir bin
    cd bin
    cmake ../
@@ -111,7 +111,7 @@ After this step, the module `susan` should be available to be imported.
 ### `Matlab` setup
 `LOCAL_SUSAN_PATH` must be added to path. On the `Matlab` command line, or on a `Matlab` script:
 ```
-addpath LOCAL_SUSAN_PATH
+addpath LOCAL_SUSAN_PATH/SUSAN
 ```
 
 ## Installing `SUSAN` in a `conda` environment (for `Python`)
@@ -156,7 +156,7 @@ A tutorial is available for `Python` and `Matlab` for the `mixedCTEM` dataset fr
 ### Preparing the data
 1. Download the dataset (uses `wget`):
    ```
-   cd LOCAL_SUSAN_PATH/tutorials/empiar_10064/data
+   cd LOCAL_SUSAN_PATH/SUSAN/tutorials/empiar_10064/data
    ./download_data.sh
    ```
 2. Create the aligned stacks (uses `IMOD`):
@@ -165,7 +165,7 @@ A tutorial is available for `Python` and `Matlab` for the `mixedCTEM` dataset fr
    ```
 3. Uncompress the initial reference (uses `gunzip`):
    ```
-   cd LOCAL_SUSAN_PATH/tutorials/empiar_10064
+   cd LOCAL_SUSAN_PATH/SUSAN/tutorials/empiar_10064
    gunzip emd_3420_b4.mrc.gz
    ```
 
