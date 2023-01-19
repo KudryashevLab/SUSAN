@@ -53,7 +53,7 @@ We assume that `SUSAN` will be installed in the `LOCAL_SUSAN_PATH` folder (`LOCA
 2. Clone `SUSAN` to `LOCAL_SUSAN_PATH`:
    ```
    cd LOCAL_SUSAN_PATH
-   git clone https://github.com/rkms86/SUSAN
+   git clone https://github.com/KudryashevLab/SUSAN.git
    ```
    - **(Optional)** Install `Eigen`:
      ```
@@ -136,7 +136,7 @@ addpath LOCAL_SUSAN_PATH
 2. Clone `SUSAN` to `LOCAL_SUSAN_PATH` (For example, `LOCAL_SUSAN_PATH` can be `~/Software/`), compile it and prepare it for the `Python` installation:
    ```
    cd LOCAL_SUSAN_PATH
-   git clone https://github.com/rkms86/SUSAN
+   git clone https://github.com/KudryashevLab/SUSAN.git
    mkdir SUSAN/bin
    cd SUSAN/bin
    cmake ../
