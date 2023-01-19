@@ -1,7 +1,7 @@
 # SUbStack ANalysis (SUSAN): High performance Subtomogram Averaging
 **(Distribution version)**
 
-Last time synchronized with [upstream repository](https://github.com/rkms86/SUSAN) on 2022-Dec-14.
+Last time synchronized with [upstream repository](https://github.com/rkms86/SUSAN) on 2023-Jan-19.
 
 ## Contents
 - [Description](#description)
